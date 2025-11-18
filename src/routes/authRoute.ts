@@ -1,9 +1,11 @@
 import express from 'express'
-import { signupUser } from '../controller/authController';
+import { loginUser, signupUser } from '../controller/authController';
+import { hashPassword } from '../middlewares/bcryptPassword';
 
 const userRoute = express.Router();
 
-userRoute.post('/signup', signupUser)
+userRoute.post('/signup', hashPassword, signupUser)
+userRoute.post('/login', loginUser)
 
 
 export default userRoute
