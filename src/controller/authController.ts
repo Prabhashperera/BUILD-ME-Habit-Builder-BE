@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import UserModel from "../model/userModel";
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 
 export const loginUser = async (req: Request, res: Response) => {
@@ -14,7 +15,21 @@ export const loginUser = async (req: Request, res: Response) => {
         if (!foundUser) { return res.status(400).json({ message: "User not found" }); }
 
         const isMatch = await bcrypt.compare(password, foundUser.password)
-        if (isMatch) { return res.status(201).json({ message: "User Matched", data: { email, userName } }); }
+        if (!isMatch) { return res.status(400).json({ message: "Password not Match" }); }
+
+        const SECRET_KEY = process.env.SECRET_KEY as string;
+
+        const token = jwt.sign(
+            {
+                userId: foundUser._id,
+                userName: foundUser.userName,
+                email: foundUser.email
+            },
+            SECRET_KEY,
+            { expiresIn: "1h" }
+        );
+
+        return res.status(201).json({ message: "Login Success", data: { userName, email, token } });
 
     } catch (error) {
         res.status(400).json({ message: "Error While Comparing Passwords", error });
