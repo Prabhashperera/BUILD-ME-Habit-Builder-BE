@@ -58,3 +58,8 @@ export const signupUser = async (req: Request, res: Response) => {
         })
     }
 }
+
+
+export const getData = async (req: Request, res: Response) => {
+    res.send("Hello")
+}
