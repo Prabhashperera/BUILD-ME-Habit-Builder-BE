@@ -22,7 +22,7 @@ export const signupUser = async (req: Request, res: Response) => {
         })
 
     } catch (error) {
-        res.status(501).json({
+        res.status(500).json({
             message: "User Saved Failed",
             errors: error
         })
