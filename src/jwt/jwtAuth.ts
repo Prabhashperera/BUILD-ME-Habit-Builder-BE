@@ -11,9 +11,10 @@ export const jwtAuthCheckToken = async (req: Request, res: Response, next: NextF
             throw new Error('Missing access token');
         }
 
-        const deocode = jwt.verify(accessToken, SECRET_KEY)
+        const deocode = jwt.verify(accessToken, SECRET_KEY) as any
         if (deocode) {
             console.log(deocode, accessToken);
+            req.user = deocode;
             next();
         }
 

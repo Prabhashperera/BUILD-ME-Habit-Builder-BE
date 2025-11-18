@@ -4,12 +4,17 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ],
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "commonjs",
     "target": "es2020",
     "types": [
-      "node"
+      "node",
+      "express"
     ],
     // For nodejs:
     // "lib": ["esnext"],
