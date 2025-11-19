@@ -32,7 +32,7 @@ export const loginUser = async (req: Request, res: Response) => {
         return res.status(201).json({ message: "Login Success", data: { userName, email, token } });
 
     } catch (error) {
-        res.status(400).json({ message: "Error While Comparing Passwords", error });
+        res.status(400).json({ message: "Error While Logging in", error });
     }
 }
 

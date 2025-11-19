@@ -2,11 +2,6 @@ import { Request, Response } from "express";
 import GenAi from "../../config/geminiConfig";
 import SleepCycleModel from "../../model/habits/sleepCycleHabit";
 
-interface Part {
-    text?: string;       // the main text
-    // maybe other fields like image, role, etc. depending on SDK version
-}
-
 const SLEEP_START = "21:00"; // 9 PM
 const SLEEP_END = "22:00";   // 10 PM
 
@@ -98,6 +93,9 @@ export const saveDailyLog = async (req: Request, res: Response) => {
 
 
     } catch (error) {
-        res.send("error" + error)
+        res.status(500).json({
+            message: "Log Savng Failed",
+            error
+        })
     }
 }
