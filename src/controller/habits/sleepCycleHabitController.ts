@@ -60,7 +60,12 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         if (!process.env.API_KEY_AI) return res.status(500).send("API key missing");
 
 
-        const currentDate = new Date("2025-01-01").getFullYear(); // Current Date
+        const date = new Date(); // today
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        const currentDate = `${year}-${month}-${day}`;
         const userId = req.user?.userId //Current User ID
         const { sleptAt, wokeAt } = req.body //All The Request Data
         const isSleptInWindow = isInTimeWindow(sleptAt, SLEEP_START, SLEEP_END) // isSleptInWindow
@@ -74,19 +79,21 @@ export const saveDailyLog = async (req: Request, res: Response) => {
 
         const newSleepLog = new SleepCycleModel({
             userId: userId,
-            date: currentDate,
-            sleptAt: sleptAt,
-            wokeAt: wokeAt,
-            sleptInWindow: isSleptInWindow,
-            wokeInWindow: isWokeInWindow,
-            pointsAwarded: pointsAwarded,
-            aiAdvice: dailyAdvice
+            dailyLogs: [{
+                date: currentDate,
+                sleptAt: sleptAt,
+                wokeAt: wokeAt,
+                sleptInWindow: isSleptInWindow,
+                wokeInWindow: isWokeInWindow,
+                pointsAwarded: pointsAwarded,
+                aiAdvice: dailyAdvice
+            }]
         });
 
         const savedDailyLog = await newSleepLog.save()
         res.status(201).json({
             message: "Log Saved Success",
-            data: { savedDailyLog, dailyAdvice }
+            data: { savedDailyLog }
         })
 
 
