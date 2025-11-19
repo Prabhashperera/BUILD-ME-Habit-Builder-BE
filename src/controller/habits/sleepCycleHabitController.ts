@@ -31,11 +31,11 @@ function calculatePoints(isSleptInWindow: boolean, isWokeInWindow: boolean) {
     return isSleptInWindow && isWokeInWindow ? 2 : isSleptInWindow || isWokeInWindow ? 1 : 0
 }
 
-async function geminiDailyAdvice(sleptAt: string, wokeAt: string) {
-    const prompt = `The user slept at ${sleptAt} and woke at ${wokeAt}.
+async function geminiDailyAdvice(sleptAt: string, wokeAt: string, userName: string) {
+    const prompt = `The ${userName} slept at ${sleptAt} and woke at ${wokeAt}.
     but i given sleep hour is arround ${SLEEP_START} - ${SLEEP_END},
     and the wakeup time i gven to him is ${WAKE_START} - ${WAKE_END}.
-    Give a friendly, advice for improving him to sleep habits.`
+    Give a friendly,funny,short advice for improving him to sleep habits (dont give introductions, just give the advice).`
 
     // const models = await GenAi.models.list();
     // console.log(models);
@@ -64,7 +64,7 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         const isSleptInWindow = isInTimeWindow(sleptAt, SLEEP_START, SLEEP_END) // isSleptInWindow
         const isWokeInWindow = isInTimeWindow(wokeAt, WAKE_START, WAKE_END) // isWokeInWindow
         const pointsAwarded = calculatePoints(isSleptInWindow, isWokeInWindow) // returns Awarded Points
-        const dailyAdvice = await geminiDailyAdvice(sleptAt, wokeAt) // Returns the Gemini Response
+        const dailyAdvice = await geminiDailyAdvice(sleptAt, wokeAt, "prabash") // Returns the Gemini Response
 
         console.log(currentDate, userId, sleptAt, wokeAt);
         console.log(isSleptInWindow, isWokeInWindow, pointsAwarded);
