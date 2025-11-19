@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import GenAi from "../../config/geminiConfig";
 
+interface Part {
+    text?: string;       // the main text
+    // maybe other fields like image, role, etc. depending on SDK version
+}
+
 const SLEEP_START = "21:00"; // 9 PM
 const SLEEP_END = "22:00";   // 10 PM
 
@@ -32,22 +37,47 @@ async function geminiDailyAdvice(sleptAt: string, wokeAt: string) {
     and the wakeup time i gven to him is ${WAKE_START} - ${WAKE_END}.
     Give a friendly, advice for improving him to sleep habits.`
 
-    const response = await GenAi.models.generateContent({
-        model: "gemini-2.5-pro", //gemini-2.5-flash-lite
-        contents: prompt
-    })
-    return response
+    // const models = await GenAi.models.list();
+    // console.log(models);
+
+    const model = GenAi.getGenerativeModel({
+        model: "gemini-2.0-flash",
+    });
+
+    const result = await model.generateContent(prompt);
+    console.log(result.response.text());
+    return result;
+
+
 }
 
-const saveDailyLog = (req: Request, res: Response) => {
+export const saveDailyLog = async (req: Request, res: Response) => {
     try {
+
+        console.log("API KEY:", process.env.API_KEY_AI);
+        if (!process.env.API_KEY_AI) return res.status(500).send("API key missing");
+
+
         const currentDate = new Date("2025-01-01").getFullYear(); // Current Date
         const userId = req.user //Current User ID
         const { sleptAt, wokeAt } = req.body //All The Request Data
         const isSleptInWindow = isInTimeWindow(sleptAt, SLEEP_START, SLEEP_END) // isSleptInWindow
         const isWokeInWindow = isInTimeWindow(wokeAt, WAKE_START, WAKE_END) // isWokeInWindow
         const pointsAwarded = calculatePoints(isSleptInWindow, isWokeInWindow) // returns Awarded Points
-        const dailyAdvice = geminiDailyAdvice(sleptAt, wokeAt) // Returns the Gemini Response
+        const dailyAdvice = await geminiDailyAdvice(sleptAt, wokeAt) // Returns the Gemini Response
+
+        console.log(currentDate, userId, sleptAt, wokeAt);
+        console.log(isSleptInWindow, isWokeInWindow, pointsAwarded);
+        console.log("Advice : " + dailyAdvice);
+        res.status(200).json({
+            sleptAt,
+            wokeAt,
+            isSleptInWindow,
+            isWokeInWindow,
+            pointsAwarded,
+            advice: dailyAdvice
+        })
+
 
     } catch (error) {
         res.send("error" + error)
