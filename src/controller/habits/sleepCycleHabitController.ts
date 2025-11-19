@@ -8,6 +8,7 @@ const SLEEP_END = "22:00";   // 10 PM
 const WAKE_START = "06:00";  // 6 AM
 const WAKE_END = "07:00";    // 7 AM
 
+
 function timeToMinutes(time: string) {
     const parts = time.split(":");
     const hours = Number(parts[0] ?? 0);   // fallback to 0 if undefined
@@ -48,8 +49,13 @@ async function geminiDailyAdvice(sleptAt: string, wokeAt: string, userName: stri
 
 }
 
+// MAIN FUNCTION THAT SAVE ALL THINGS
 export const saveDailyLog = async (req: Request, res: Response) => {
     try {
+        const userID = req.user?.userId
+        const foundLogs = await SleepCycleModel.findOne({ userID })
+        const CURRENT_DAYS_OF_HABBT = foundLogs?.dailyLogs.length as number
+        if (CURRENT_DAYS_OF_HABBT == 30) { return res.status(502).json({ message: "Challenge Days Are Over" }) }
 
         console.log("API KEY:", process.env.API_KEY_AI);
         if (!process.env.API_KEY_AI) return res.status(500).send("API key missing");
@@ -72,21 +78,25 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         console.log(isSleptInWindow, isWokeInWindow, pointsAwarded);
         console.log("Advice : " + dailyAdvice);
 
-        const newSleepLog = new SleepCycleModel({
-            userId: userId,
-            dailyLogs: [{
-                date: currentDate,
-                sleptAt: sleptAt,
-                wokeAt: wokeAt,
-                sleptInWindow: isSleptInWindow,
-                wokeInWindow: isWokeInWindow,
-                pointsAwarded: pointsAwarded,
-                aiAdvice: dailyAdvice
-            }]
-        });
+        const savedDailyLog = await SleepCycleModel.findOneAndUpdate(
+            { userId }, // find doc by user
+            {
+                $push: {
+                    dailyLogs: {
+                        date: currentDate,
+                        sleptAt,
+                        wokeAt,
+                        sleptInWindow: isSleptInWindow,
+                        wokeInWindow: isWokeInWindow,
+                        pointsAwarded,
+                        aiAdvice: dailyAdvice
+                    }
+                }
+            },
+            { new: true, upsert: true }
+        );
 
-        const savedDailyLog = await newSleepLog.save()
-        res.status(201).json({
+        res.status(200).json({
             message: "Log Saved Success",
             data: { savedDailyLog }
         })
@@ -95,6 +105,25 @@ export const saveDailyLog = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({
             message: "Log Savng Failed",
+            error
+        })
+    }
+}
+
+// Returns the current days of did logged
+export const getCurrentDay = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId
+        const foundLogs = await SleepCycleModel.findOne({ userId })
+        const CURRENT_DAYS_OF_HABBT = foundLogs?.dailyLogs.length as number
+        res.status(200).json({
+            message: "Dates Counted",
+            data: CURRENT_DAYS_OF_HABBT
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Internel Server Error",
             error
         })
     }
