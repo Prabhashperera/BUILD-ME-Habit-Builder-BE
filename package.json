@@ -10,6 +10,7 @@
   "author": "prabashmperera",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.30.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
