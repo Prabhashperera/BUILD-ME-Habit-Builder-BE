@@ -57,7 +57,7 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         const CURRENT_DAYS_OF_HABBT = foundLogs?.dailyLogs.length as number
         if (CURRENT_DAYS_OF_HABBT == 30) { return res.status(502).json({ message: "Challenge Days Are Over" }) }
 
-        console.log("API KEY:", process.env.API_KEY_AI);
+        // console.log("API KEY:", process.env.API_KEY_AI);
         if (!process.env.API_KEY_AI) return res.status(500).send("API key missing");
 
 
