@@ -157,3 +157,35 @@ export const getCurrentDay = async (req: Request, res: Response) => {
         })
     }
 }
+
+
+// Check Is Logged Today
+export const checkIsLoggedToday = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId //Current User ID
+        // Checks the Daily Logs from User and find IsAlready Logged Today
+        const userLogs = await SleepCycleModel.findOne({ userId });
+        const todayDateWithoutTime = new Date().toISOString().split("T")[0] as string
+        const alreadyLogged = userLogs?.dailyLogs.some(log =>
+            log.date.toISOString().startsWith(todayDateWithoutTime)
+        );
+
+        if (alreadyLogged) {
+            res.status(200).json({
+                message: "User Already Logged Today!!",
+                data: true
+            })
+        } else {
+            res.status(200).json({
+                message: "User NOT Logged Today!!",
+                data: false
+            })
+        }
+
+    } catch (error) {
+        res.status(502).json({
+            message: "Error While checking Logged Today!!",
+            error
+        })
+    }
+}
