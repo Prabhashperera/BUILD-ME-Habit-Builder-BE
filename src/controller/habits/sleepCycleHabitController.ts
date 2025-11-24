@@ -61,12 +61,14 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         if (!process.env.API_KEY_AI) return res.status(500).send("API key missing");
 
 
-        const date = new Date(); // today
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
+        // Get today’s real date
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const currentDateString = `${yyyy}-${mm}-${dd}`;
+        const currentDate = new Date(currentDateString);
 
-        const currentDate = `${year}-${month}-${day}`;
         const userId = req.user?.userId //Current User ID
         const { sleptAt, wokeAt } = req.body //All The Request Data
         const isSleptInWindow = isInTimeWindow(sleptAt, SLEEP_START, SLEEP_END) // isSleptInWindow
@@ -96,9 +98,13 @@ export const saveDailyLog = async (req: Request, res: Response) => {
             { new: true, upsert: true }
         );
 
+        const todayLog = savedDailyLog.dailyLogs.find(
+            log => log.date.toISOString().startsWith(currentDateString)
+        );
+
         res.status(200).json({
             message: "Log Saved Success",
-            data: { savedDailyLog }
+            data: { todayLog }
         })
 
 
