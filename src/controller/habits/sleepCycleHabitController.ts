@@ -30,11 +30,13 @@ function calculatePoints(isSleptInWindow: boolean, isWokeInWindow: boolean) {
 
 async function geminiDailyAdvice(sleptAt: string, wokeAt: string, userName: string) {
     const prompt = `Hey ${userName}! I see you slept at ${sleptAt} and woke up at ${wokeAt}. 
-    Your ideal sleep window is around ${SLEEP_START} - ${SLEEP_END}, 
-    and your ideal wake-up window is ${WAKE_START} - ${WAKE_END}. 
-    Give me a short, friendly, and funny tip to help me improve my sleep habits. 
-    Keep it casual, encouraging, and the last give a tip or tips according to the situation 
-    and skip any introductions (use simple english words) — just the advice!`;
+    Your ideal sleep window is ${SLEEP_START} - ${SLEEP_END}, 
+    and your ideal wake-up window is ${WAKE_START} - ${WAKE_END}.
+
+    Compare the times I actually slept/woke to the ideal window and give me a short, friendly, and funny tip on how to adjust my sleep tonight or tomorrow morning to fit the ideal window. 
+    Be very specific: if I slept too late, suggest going to bed earlier; if I woke too late, suggest ways to wake up on time. 
+    Skip introductions, use simple English, make it encouraging and actionable.`;
+
 
     // const models = await GenAi.models.list();
     // console.log(models);
@@ -69,6 +71,7 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         const currentDateString = `${yyyy}-${mm}-${dd}`;
         const currentDate = new Date(currentDateString);
 
+
         const userId = req.user?.userId //Current User ID
         const { sleptAt, wokeAt } = req.body //All The Request Data
         const isSleptInWindow = isInTimeWindow(sleptAt, SLEEP_START, SLEEP_END) // isSleptInWindow
@@ -79,6 +82,20 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         console.log(currentDate, userId, sleptAt, wokeAt);
         console.log(isSleptInWindow, isWokeInWindow, pointsAwarded);
         console.log("Advice : " + dailyAdvice);
+
+        // Checks the Daily Logs from User and find IsAlready Logged Today
+        const userLogs = await SleepCycleModel.findOne({ userId });
+        const todayDateWithoutTime = new Date().toISOString().split("T")[0] as string
+        const alreadyLogged = userLogs?.dailyLogs.some(log =>
+            log.date.toISOString().startsWith(todayDateWithoutTime)
+        );
+
+        // This is Holding the Daily Log, Only Users Can One Daily Log per Day
+        // if (alreadyLogged) {
+        //     return res.status(500).json({
+        //         message: "Today Logges Over",
+        //     })
+        // }
 
         const savedDailyLog = await SleepCycleModel.findOneAndUpdate(
             { userId }, // find doc by user
@@ -98,9 +115,15 @@ export const saveDailyLog = async (req: Request, res: Response) => {
             { new: true, upsert: true }
         );
 
-        const todayLog = savedDailyLog.dailyLogs.find(
+        // Remove this after  deployement -----------------------------------------------------------------
+        const todayLogs = savedDailyLog.dailyLogs.filter(
             log => log.date.toISOString().startsWith(currentDateString)
         );
+
+        // get the latest one
+        const todayLog = todayLogs[todayLogs.length - 1];
+        // Remove this after  deployement -----------------------------------------------------------------
+
 
         res.status(200).json({
             message: "Log Saved Success",
