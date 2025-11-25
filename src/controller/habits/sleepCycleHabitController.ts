@@ -189,3 +189,26 @@ export const checkIsLoggedToday = async (req: Request, res: Response) => {
         })
     }
 }
+
+
+// Get the User Progress
+export const getProgressData = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId
+
+        const userLogData = await SleepCycleModel.findOne({ userId })
+        const currentDays = userLogData?.dailyLogs.length as number  //Current Days 
+        const currentPoints = userLogData?.dailyLogs.reduce((total, log) => {
+            return total + Number(log.pointsAwarded)
+        }, 0)
+        const progress = Math.round((currentDays / 30) * 100)
+
+        res.status(200).json({
+            message: "Progress Counted Successfully",
+            data: { currentDays, currentPoints, progress }
+        })
+
+    } catch (error) {
+        res.send(error)
+    }
+}
