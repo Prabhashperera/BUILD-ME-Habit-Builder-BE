@@ -205,7 +205,12 @@ export const getProgressData = async (req: Request, res: Response) => {
 
         res.status(200).json({
             message: "Progress Counted Successfully",
-            data: { currentDays, currentPoints, progress }
+            data: {
+                "sleep": { "currentDays": 5, "currentPoints": 20, "progress": 17, "type": "sleep" },
+                "eat": { "currentDays": 2, "currentPoints": 10, "progress": 6, "type": "eat" },
+                "read": { "currentDays": 7, "currentPoints": 25, "progress": 23, "type": "read" },
+                "gym": { "currentDays": 4, "currentPoints": 15, "progress": 13, "type": "gym" }
+            }
         })
 
     } catch (error) {
