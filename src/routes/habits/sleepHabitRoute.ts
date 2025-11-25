@@ -7,6 +7,6 @@ const sleepHabitRoute = express.Router()
 sleepHabitRoute.post("/save", jwtAuthCheckToken, saveDailyLog)
 sleepHabitRoute.get("/getcurrentdate", jwtAuthCheckToken, getCurrentDay)
 sleepHabitRoute.get("/checkisloggedtoday", jwtAuthCheckToken, checkIsLoggedToday)
-sleepHabitRoute.get("/getsleephabituserdata", jwtAuthCheckToken, getProgressData)
+sleepHabitRoute.get("/sleepprogress", jwtAuthCheckToken, getProgressData)
 
 export default sleepHabitRoute
