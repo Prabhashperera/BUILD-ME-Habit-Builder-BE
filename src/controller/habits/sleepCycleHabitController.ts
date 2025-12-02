@@ -217,3 +217,21 @@ export const getProgressData = async (req: Request, res: Response) => {
         res.send(error)
     }
 }
+
+
+// Get All the User Logs
+export const getAllUserLogs = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId
+        const userLogData = await SleepCycleModel.findOne({ userId })
+        const userLogs = userLogData?.dailyLogs
+        res.status(200).json({
+            message: "User Logs Data",
+            data: { userLogs }
+        })
+
+    } catch (err) {
+        res.send(err)
+
+    }
+}
