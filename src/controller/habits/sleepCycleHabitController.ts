@@ -95,7 +95,7 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         //     return res.status(500).json({
         //         message: "Today Logges Over",
         //     })
-        // }
+        // 
 
         const savedDailyLog = await SleepCycleModel.findOneAndUpdate(
             { userId }, // find doc by user
@@ -233,5 +233,22 @@ export const getAllUserLogs = async (req: Request, res: Response) => {
     } catch (err) {
         res.send(err)
 
+    }
+}
+
+
+// Sleep Habit End Analysis
+const generateFinalAnalysis = async (req: Request, res: Response) => {
+    try {
+        const model = GenAi.getGenerativeModel({
+            model: "gemini-2.0-flash",
+        });
+
+        // const result = await model.generateContent(prompt);
+        console.log(result.response.text());
+        return result.response.text();
+
+    } catch (err: any) {
+        res.send(err.message)
     }
 }
