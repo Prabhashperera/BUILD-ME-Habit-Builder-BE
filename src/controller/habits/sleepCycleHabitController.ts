@@ -42,7 +42,7 @@ async function geminiDailyAdvice(sleptAt: string, wokeAt: string, userName: stri
     // console.log(models);
 
     const model = GenAi.getGenerativeModel({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
     });
 
     const result = await model.generateContent(prompt);
