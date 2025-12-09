@@ -238,15 +238,38 @@ export const getAllUserLogs = async (req: Request, res: Response) => {
 
 
 // Sleep Habit End Analysis
-const generateFinalAnalysis = async (req: Request, res: Response) => {
+export const generateFinalAnalysis = async (req: Request, res: Response) => {
     try {
-        const model = GenAi.getGenerativeModel({
-            model: "gemini-2.0-flash",
-        });
+        const userId = req.user?.userId
+        const allLoggedData = await SleepCycleModel.findOne({ userId })
 
-        // const result = await model.generateContent(prompt);
+        const prompt = `${allLoggedData}
+            Analyze the user's sleep challenge. The data shows when ${req.user?.userName} slept, woke up, and the daily points earned.
+
+            Your tasks:
+            - Calculate: average sleep time, average wake time, total points, and best-performing day
+            - Evaluate consistency with the rules:
+            • Sleep between ${SLEEP_START} and ${SLEEP_END}
+            • Wake between ${WAKE_START} and ${WAKE_END}
+            - Decide if the user passed the challenge (average score >= 40)
+            - Provide a friendly and motivational summary with:
+            • What they did well (small wins)
+            • Areas to improve
+            • Simple action tips
+
+            Tone:
+            Positive, supportive, clear, and uplifting 😄
+            Focus on progress and health benefits of better sleep!
+            `;
+
+
+        const model = GenAi.getGenerativeModel({
+            model: "gemini-2.5-flash",
+        });
+        const result = await model.generateContent(prompt);
         console.log(result.response.text());
-        return result.response.text();
+        res.send(result.response.text())
+
 
     } catch (err: any) {
         res.send(err.message)
