@@ -243,24 +243,77 @@ export const generateFinalAnalysis = async (req: Request, res: Response) => {
         const userId = req.user?.userId
         const allLoggedData = await SleepCycleModel.findOne({ userId })
 
-        const prompt = `${allLoggedData}
-            Analyze the user's sleep challenge. The data shows when ${req.user?.userName} slept, woke up, and the daily points earned.
+        const prompt = `
+        ${allLoggedData}
 
-            Your tasks:
-            - Calculate: average sleep time, average wake time, total points, and best-performing day
-            - Evaluate consistency with the rules:
-            • Sleep between ${SLEEP_START} and ${SLEEP_END}
-            • Wake between ${WAKE_START} and ${WAKE_END}
-            - Decide if the user passed the challenge (average score >= 40)
-            - Provide a friendly and motivational summary with:
-            • What they did well (small wins)
-            • Areas to improve
-            • Simple action tips
+        You are analyzing a user's sleep habit challenge data.
 
-            Tone:
-            Positive, supportive, clear, and uplifting 😄
-            Focus on progress and health benefits of better sleep!
-            `;
+        User name: ${req.user?.userName}
+
+        Challenge rules:
+        - Sleep between ${SLEEP_START} and ${SLEEP_END}
+        - Wake between ${WAKE_START} and ${WAKE_END}
+        - Each log gives a maximum of 2 points
+
+        Tasks:
+        1. Calculate statistics:
+        - Average sleep time (HH:mm)
+        - Average wake time (HH:mm)
+        - Total points
+        - Best-performing day (date with highest points)
+
+        2. Calculate consistency:
+        - Number of days sleep window was met
+        - Number of days wake window was met
+        - Number of days both were met
+        - Total number of log entries
+        - Average points per log
+
+        3. Provide insights:
+        - 2–3 strengths
+        - 2–3 improvement areas
+        - 3–4 simple actionable tips
+
+        IMPORTANT OUTPUT RULES:
+        - Respond ONLY in valid JSON
+        - No markdown
+        - No emojis
+        - No extra text
+        - No explanations
+        - Values must be short and UI-friendly
+
+        Return JSON in this exact format:
+
+        {
+        "overview": {
+            "averageSleepTime": "HH:mm",
+            "averageWakeTime": "HH:mm",
+            "totalPoints": number,
+            "bestDay": "YYYY-MM-DD"
+        },
+        "consistency": {
+            "sleepWindowHits": number,
+            "wakeWindowHits": number,
+            "bothWindowHits": number,
+            "totalLogs": number,
+            "averageScore": number
+        },
+        "strengths": [
+            "string",
+            "string"
+        ],
+        "improvements": [
+            "string",
+            "string"
+        ],
+        "tips": [
+            "string",
+            "string",
+            "string"
+        ]
+        }
+        `;
+
 
 
         const model = GenAi.getGenerativeModel({
@@ -268,7 +321,10 @@ export const generateFinalAnalysis = async (req: Request, res: Response) => {
         });
         const result = await model.generateContent(prompt);
         console.log(result.response.text());
-        res.send(result.response.text())
+        res.status(201).json({
+            message: "Generated Final Analysis",
+            data: result.response.text()
+        })
 
 
     } catch (err: any) {
