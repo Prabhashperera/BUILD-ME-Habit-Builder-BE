@@ -331,3 +331,57 @@ export const generateFinalAnalysis = async (req: Request, res: Response) => {
         res.send(err.message)
     }
 }
+
+// Save Final Analysis
+export const saveFinalAiAnalysis = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId;
+        const { aiAnalysis } = req.body;
+
+        if (!aiAnalysis) {
+            return res.status(400).json({
+                message: "aiAnalysis is required"
+            });
+        }
+
+        const updated = await SleepCycleModel.findOneAndUpdate(
+            { userId },
+            {
+                $set: { aiAnalysis }
+            },
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({
+                message: "Sleep habit not found"
+            });
+        }
+
+        res.status(200).json({
+            message: "Final AI Analysis saved successfully"
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: "Failed to save AI analysis",
+            error: err
+        });
+    }
+};
+
+
+// Get Ai Analysis
+export const getFinalAiAnalysis = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId
+        const response = await SleepCycleModel.findOne({ userId })
+        const aiAnalysis = response?.aiAnalysis
+        res.status(200).json({
+            message: "Success",
+            data: aiAnalysis
+        })
+    } catch (err) {
+        res.send(err)
+    }
+}

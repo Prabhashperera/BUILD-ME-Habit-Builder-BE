@@ -11,6 +11,8 @@ export interface ISleepCycle extends Document {
         pointsAwarded: number,
         aiAdvice?: string
     }[];
+    aiAnalysis?: string; // Final AI analysis
+
 }
 
 // Daily Logs Seperation
@@ -31,7 +33,11 @@ const sleepCycleHabit: Schema<ISleepCycle> = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    dailyLogs: [dailyLogsSchema]
+    dailyLogs: [dailyLogsSchema],
+    // 🧠 Final AI Analysis for the whole habit
+    aiAnalysis: {
+        type: String,
+    },
 }, { timestamps: true });
 
 const SleepCycleModel = mongoose.model<ISleepCycle>("SleepCycleModel", sleepCycleHabit)
