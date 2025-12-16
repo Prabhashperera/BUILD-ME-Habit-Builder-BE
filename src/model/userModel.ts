@@ -3,7 +3,8 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IUser extends Document {
     userName: string,
     email: string,
-    password: string
+    password: string,
+    refreshToken?: string
 }
 
 const userModel: Schema<IUser> = new mongoose.Schema({
@@ -23,6 +24,10 @@ const userModel: Schema<IUser> = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    refreshToken: {
+        type: String,
+        default: null
+    }
 
 }, { timestamps: true });
 
