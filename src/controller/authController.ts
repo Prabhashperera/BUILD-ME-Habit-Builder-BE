@@ -81,22 +81,29 @@ export const getData = async (req: Request, res: Response) => {
 
 // Generate Acces Token
 export const refreshAccessToken = async (req: Request, res: Response) => {
-    const { refreshToken } = req.body
+    try {
+        const { refreshToken } = req.body
+        console.log("BODY REACHED REFRESH TOKEN")
 
-    if (!refreshToken) return res.status(401).json({ message: "No refresh token" })
 
-    const user = await UserModel.findOne({ refreshToken })
-    if (!user) return res.status(403).json({ message: "Invalid refresh token" })
+        if (!refreshToken) return res.status(401).json({ message: "No refresh token" })
 
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!, (err: any, decoded: any) => {
-        if (err) return res.status(403).json({ message: "Refresh token expired" })
+        const user = await UserModel.findOne({ refreshToken })
+        if (!user) return res.status(403).json({ message: "Invalid refresh token" })
 
-        const newAccessToken = jwt.sign(
-            { userId: user._id, email: user.email },
-            process.env.ACCESS_TOKEN_SECRET!,
-            { expiresIn: "15m" }
-        )
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!, (err: any, decoded: any) => {
+            if (err) return res.status(403).json({ message: "Refresh token expired" })
 
-        res.json({ accessToken: newAccessToken })
-    })
+            const newAccessToken = jwt.sign(
+                { userId: user._id, email: user.email },
+                process.env.SECRET_KEY!,
+                { expiresIn: "15m" }
+            )
+            console.log(newAccessToken + "CREATED!!!!!!!!!");
+
+            res.json({ accessToken: newAccessToken })
+        })
+    } catch (err: any) {
+        res.send(err.message)
+    }
 }

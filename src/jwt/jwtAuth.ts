@@ -19,7 +19,7 @@ export const jwtAuthCheckToken = async (req: Request, res: Response, next: NextF
         }
 
     } catch (error) {
-        res.status(500).json({
+        res.status(401).json({
             message: "Error while Verifying Token",
             error
         })
