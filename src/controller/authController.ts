@@ -53,12 +53,11 @@ export const loginUser = async (req: Request, res: Response) => {
 export const signupUser = async (req: Request, res: Response) => {
     try {
         const userData = req.body
-        const hashedPassword = await bcrypt.hash(userData.password, 10) //Hashed Password
 
         const user = new UserModel({
             userName: userData.userName,
             email: userData.email,
-            password: hashedPassword
+            password: userData.password
         })
         const savedUser = await user.save()
         res.status(201).json({
