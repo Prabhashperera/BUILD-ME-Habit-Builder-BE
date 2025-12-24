@@ -91,11 +91,12 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         );
 
         // This is Holding the Daily Log, Only Users Can One Daily Log per Day
-        // if (alreadyLogged) {
-        //     return res.status(500).json({
-        //         message: "Today Logges Over",
-        //     })
-        // 
+        if (alreadyLogged) {
+            return res.status(500).json({
+                message: "You Already Made a Log Today!",
+            })
+        }
+
 
         const savedDailyLog = await SleepCycleModel.findOneAndUpdate(
             { userId }, // find doc by user
