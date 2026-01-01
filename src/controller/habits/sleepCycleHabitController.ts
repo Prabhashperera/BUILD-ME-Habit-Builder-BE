@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import GenAi from "../../config/geminiConfig";
 import SleepCycleModel from "../../model/habits/sleepCycleHabit";
+import groq from "../../config/groqAi";
 
 const SLEEP_START = "21:00"; // 9 PM
 const SLEEP_END = "22:00";   // 10 PM
@@ -29,6 +30,7 @@ function calculatePoints(isSleptInWindow: boolean, isWokeInWindow: boolean) {
 }
 
 async function geminiDailyAdvice(sleptAt: string, wokeAt: string, userName: string) {
+    console.log("Groq Client:", groq); // If this is undefined, your import is wrong.
     const prompt = `Hey ${userName}! I see you slept at ${sleptAt} and woke up at ${wokeAt}. 
     Your ideal sleep window is ${SLEEP_START} - ${SLEEP_END}, 
     and your ideal wake-up window is ${WAKE_START} - ${WAKE_END}.
@@ -41,13 +43,43 @@ async function geminiDailyAdvice(sleptAt: string, wokeAt: string, userName: stri
     // const models = await GenAi.models.list();
     // console.log(models);
 
-    const model = GenAi.getGenerativeModel({
-        model: "gemini-2.5-flash",
-    });
+    // const model = GenAi.getGenerativeModel({
+    //     model: "gemini-2.5-flash",
+    // });
 
-    const result = await model.generateContent(prompt);
-    console.log(result.response.text());
-    return result.response.text();
+    // const result = await model.generateContent(prompt);
+    // console.log(result.response.text());
+    // return result.response.text();
+
+    try {
+        // 1. Check if client exists before calling
+        if (!groq) {
+            console.error("GROQ Client is undefined. Check your imports.");
+            return "Good job tracking your sleep! (AI Connection Unavailable)";
+        }
+
+        const response = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.4,
+            messages: [
+                {
+                    role: "system",
+                    content: "You are a supportive and friendly sleep coach who motivates through positive reinforcement."
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ]
+        });
+
+        console.log("AI Response:", response.choices[0]?.message?.content);
+        return response.choices[0]?.message?.content || "Keep up the good work!";
+
+    } catch (error) {
+        // 2. Log the specific Groq error to your terminal so you can read it
+        console.error("GROQ API Error:", error);
+    }
 
 }
 
@@ -60,7 +92,7 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         if (CURRENT_DAYS_OF_HABBT == 30) { return res.status(502).json({ message: "Challenge Days Are Over" }) }
 
         // console.log("API KEY:", process.env.API_KEY_AI);
-        if (!process.env.API_KEY_AI) return res.status(500).send("API key missing");
+        if (!process.env.GROQ_API_KEY) {return res.status(500).json({ message: "Groq API key missing" });}
 
 
         // Get today’s real date
@@ -91,11 +123,11 @@ export const saveDailyLog = async (req: Request, res: Response) => {
         );
 
         // This is Holding the Daily Log, Only Users Can One Daily Log per Day
-        if (alreadyLogged) {
-            return res.status(500).json({
-                message: "You Already Made a Log Today!",
-            })
-        }
+        // if (alreadyLogged) {
+        //     return res.status(500).json({
+        //         message: "You Already Made a Log Today!",
+        //     })
+        // }
 
 
         const savedDailyLog = await SleepCycleModel.findOneAndUpdate(
@@ -386,3 +418,65 @@ export const getFinalAiAnalysis = async (req: Request, res: Response) => {
         res.send(err)
     }
 }
+
+// // 🧪 TEST FUNCTION: Check Groq Connection
+// export const testGroqConnection = async (req: Request, res: Response) => {
+//     console.log("----- STARTING GROQ CONNECTION TEST -----");
+    
+//     try {
+//         // 1. Check if the client object even exists
+//         if (!groq) {
+//             console.error("❌ Groq Client is UNDEFINED.");
+//             return res.status(500).json({ 
+//                 status: "Failed", 
+//                 message: "Groq client is undefined. Check your import path and config file." 
+//             });
+//         }
+
+//         // 2. Check if API Key is visible (don't log the whole key for security, just the first few chars)
+//         const apiKey = process.env.GROQ_API_KEY;
+//         if (!apiKey) {
+//             console.error("❌ API Key is MISSING in process.env");
+//             return res.status(500).json({ 
+//                 status: "Failed", 
+//                 message: "GROQ_API_KEY is missing from environment variables." 
+//             });
+//         }
+//         console.log(`✅ API Key detected: ${apiKey.substring(0, 4)}...`);
+
+//         // 3. Attempt a simple, cheap API call
+//         console.log("⏳ Sending test request to Groq...");
+//         const response = await groq.chat.completions.create({
+//             model: "llama-3.3-70b-versatile", // Using the fast model for testing
+//             messages: [
+//                 { role: "user", content: "Say 'Hello World' if you can hear me." }
+//             ],
+//             max_tokens: 10
+//         });
+
+//         const reply = response.choices[0]?.message?.content;
+//         console.log("✅ Groq Responded:", reply);
+
+//         // 4. Success Response
+//         return res.status(200).json({
+//             status: "Success",
+//             message: "Connection to Groq API is healthy!",
+//             aiResponse: reply
+//         });
+
+//     } catch (error: any) {
+//         console.error("❌ Groq API Call Failed:", error);
+
+//         // 5. Detailed Error Handling
+//         let errorMessage = "Unknown Error";
+//         if (error?.status === 401) errorMessage = "Invalid API Key (401)";
+//         if (error?.status === 429) errorMessage = "Rate Limit Exceeded (429)";
+//         if (error?.code === 'ENOTFOUND') errorMessage = "Network Error - Cannot reach Groq servers";
+
+//         return res.status(500).json({
+//             status: "Failed",
+//             errorType: errorMessage,
+//             rawError: error.message || error
+//         });
+//     }
+// };

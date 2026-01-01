@@ -12,5 +12,6 @@ sleepHabitRoute.get("/getuserAllLogs", jwtAuthCheckToken, getAllUserLogs)
 sleepHabitRoute.get("/generatefinalanalysis", jwtAuthCheckToken, generateFinalAnalysis)
 sleepHabitRoute.get("/getFinalAiAnalysis", jwtAuthCheckToken, getFinalAiAnalysis)
 sleepHabitRoute.post("/saveFinalAiAnalysis", jwtAuthCheckToken, saveFinalAiAnalysis)
+// sleepHabitRoute.get("/testgroq", testGroqConnection)
 
 export default sleepHabitRoute
