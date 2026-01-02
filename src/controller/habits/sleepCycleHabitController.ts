@@ -347,8 +347,6 @@ export const generateFinalAnalysis = async (req: Request, res: Response) => {
         }
         `;
 
-
-
         const model = GenAi.getGenerativeModel({
             model: "gemini-2.5-flash",
         });
