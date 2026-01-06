@@ -13,9 +13,10 @@ const server = express();
 dotenv.config(); // Load Dotenv files
 server.use(express.json())
 
+// https://build-me-habit-builder-fe.vercel.app/
 server.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: "*",
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
