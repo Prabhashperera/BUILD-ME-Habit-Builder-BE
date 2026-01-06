@@ -1,17 +1,22 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
-    userName: string,
+    userName?: string,
     email: string,
-    password: string,
+    password?: string,
+    googleId?: string,
+    authProvider?: "EMAIL" | "GOOGLE",
+    avatar?: string,
     refreshToken?: string
 }
 
 const userModel: Schema<IUser> = new mongoose.Schema({
     userName: {
         type: String,
-        required: true,
-        trim: true
+        trim: true,
+        required: function() {
+            return !this.googleId; // required only if not Google user
+        }
     },
     email: {
         type: String,
@@ -21,8 +26,24 @@ const userModel: Schema<IUser> = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
         trim: true,
+        required: function() {
+            return !this.googleId; // required only if not Google user
+        }
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true, // allows multiple nulls
+    },
+    authProvider: {
+        type: String,
+        enum: ["EMAIL", "GOOGLE"],
+        default: "EMAIL"
+    },
+    avatar: {
+        type: String,
+        default: null
     },
     refreshToken: {
         type: String,
@@ -32,4 +53,4 @@ const userModel: Schema<IUser> = new mongoose.Schema({
 }, { timestamps: true });
 
 const UserModel = mongoose.model<IUser>("User", userModel);
-export default UserModel
+export default UserModel;

@@ -1,5 +1,5 @@
 import express from 'express'
-import { getData, loginUser, refreshAccessToken, signupUser } from '../controller/authController';
+import { getData, googleAuth, loginUser, refreshAccessToken, signupUser } from '../controller/authController';
 import { hashPassword } from '../middlewares/bcryptPassword';
 import { jwtAuthCheckToken } from '../jwt/jwtAuth';
 
@@ -9,6 +9,8 @@ userRoute.post('/signup', hashPassword, signupUser)
 userRoute.post('/login', loginUser)
 userRoute.get('/data', jwtAuthCheckToken, getData)
 userRoute.post('/refresh-token', refreshAccessToken)
+userRoute.post("/google", googleAuth)
+
 
 
 export default userRoute
