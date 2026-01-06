@@ -4,6 +4,9 @@ import connectDB from './util/db/connectDB';
 import userRoute from './routes/authRoute';
 import sleepHabitRoute from './routes/habits/sleepHabitRoute';
 import cors from "cors";
+import serverless from "serverless-http";
+import { MongoClient } from 'mongodb';
+
 
 
 const server = express();
@@ -20,6 +23,14 @@ server.use(
 );
 
 connectDB(process.env.DB_URL) // Connect the Database (Mongodb Cluster)
+// let cachedClient: MongoClient | null = null;
+// async function connectDB(uri:any) {
+//     if (cachedClient) return cachedClient;
+//     const client = new MongoClient(uri);
+//     await client.connect();
+//     cachedClient = client;
+//     return client;
+// }
 
 server.use('/api/auth', userRoute)
 server.use('/api/habit', sleepHabitRoute)
@@ -27,6 +38,8 @@ server.use('/api/habit', sleepHabitRoute)
 
 
 
-server.listen(process.env.PORT, () => {
-    console.log("Server Started On : " + process.env.PORT);
-})
+// server.listen(process.env.PORT, () => {
+//     console.log("Server Started On : " + process.env.PORT);
+// })
+
+export default serverless(server);
