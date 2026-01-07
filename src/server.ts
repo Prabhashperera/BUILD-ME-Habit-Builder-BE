@@ -4,8 +4,6 @@ import connectDB from './util/db/connectDB';
 import userRoute from './routes/authRoute';
 import sleepHabitRoute from './routes/habits/sleepHabitRoute';
 import cors from "cors";
-import serverless from "serverless-http";
-import { MongoClient } from 'mongodb';
 
 
 

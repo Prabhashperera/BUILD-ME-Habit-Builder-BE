@@ -79,10 +79,10 @@ export const signupUser = async (req: Request, res: Response) => {
             data: savedUser
         })
 
-    } catch (error) {
+    } catch (error:any) {
         res.status(500).json({
             message: "User Saved Failed",
-            errors: error
+            errors: error?.message
         })
     }
 }
