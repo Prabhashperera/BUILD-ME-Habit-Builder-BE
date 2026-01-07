@@ -37,10 +37,12 @@ server.use('/api/auth', userRoute)
 server.use('/api/habit', sleepHabitRoute)
 
 
+server.get('/', (_req, res) => {
+    res.send("API is Running....")
+})
 
+server.listen(process.env.PORT, () => {
+    console.log("Server Started On : " + process.env.PORT);
+})
 
-// server.listen(process.env.PORT, () => {
-//     console.log("Server Started On : " + process.env.PORT);
-// })
-
-export default serverless(server);
+// export default serverless(server);
