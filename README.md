@@ -233,11 +233,6 @@ Please follow existing code style and tests. Add or update API docs for any new 
 
 ---
 
-## License & Contact
-
-- License: (add your license, e.g., MIT) — update as appropriate.
-- Maintainer / Contact: Prabhash Perera (GitHub: [Prabhashperera](https://github.com/Prabhashperera))
-
 ---
 
 Thank you for using BuildMe! If you'd like, I can:
