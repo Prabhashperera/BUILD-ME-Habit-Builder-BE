@@ -110,7 +110,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
             const newAccessToken = jwt.sign(
                 { userId: user._id, email: user.email },
                 process.env.SECRET_KEY!,
-                { expiresIn: "15m" }
+                { expiresIn: "1m" }
             )
             console.log(newAccessToken + "CREATED!!!!!!!!!");
 
