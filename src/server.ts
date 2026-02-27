@@ -14,7 +14,7 @@ server.use(express.json())
 // https://build-me-habit-builder-fe.vercel.app/
 server.use(
     cors({
-        origin: "*",
+        origin: "https://build-me-habit-builder-937rc1vcv-prabashzs-projects.vercel.app",
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
